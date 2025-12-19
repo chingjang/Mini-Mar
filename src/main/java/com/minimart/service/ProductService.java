@@ -44,7 +44,11 @@ public class ProductService {
         Optional<Product> productOpt = productRepository.findById(productId);
         if (productOpt.isPresent()) {
             Product product = productOpt.get();
-            product.setQuantity(product.getQuantity() - quantitySold);
+            int newQuantity = product.getQuantity() - quantitySold;
+            if (newQuantity < 0) {
+                throw new IllegalArgumentException("Insufficient stock. Available: " + product.getQuantity() + ", Requested: " + quantitySold);
+            }
+            product.setQuantity(newQuantity);
             productRepository.save(product);
         }
     }

@@ -83,6 +83,20 @@ class ProductServiceTest {
         verify(productRepository, times(1)).findById(1L);
         verify(productRepository, times(1)).save(testProduct);
     }
+    
+    @Test
+    void testUpdateStockWithInsufficientQuantity() {
+        when(productRepository.findById(1L)).thenReturn(Optional.of(testProduct));
+
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> productService.updateStock(1L, 60)
+        );
+
+        assertTrue(exception.getMessage().contains("Insufficient stock"));
+        verify(productRepository, times(1)).findById(1L);
+        verify(productRepository, never()).save(any(Product.class));
+    }
 
     @Test
     void testDeleteProduct() {

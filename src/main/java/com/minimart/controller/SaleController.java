@@ -5,6 +5,7 @@ import com.minimart.model.Sale;
 import com.minimart.model.SaleItem;
 import com.minimart.service.ProductService;
 import com.minimart.service.SaleService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,11 +26,21 @@ public class SaleController {
     @Autowired
     private ProductService productService;
     
-    // Session-based cart (in a real application, use session attributes or database)
-    private Map<Long, CartItem> cart = new HashMap<>();
+    private static final String CART_SESSION_KEY = "shopping_cart";
+    
+    @SuppressWarnings("unchecked")
+    private Map<Long, CartItem> getCart(HttpSession session) {
+        Map<Long, CartItem> cart = (Map<Long, CartItem>) session.getAttribute(CART_SESSION_KEY);
+        if (cart == null) {
+            cart = new HashMap<>();
+            session.setAttribute(CART_SESSION_KEY, cart);
+        }
+        return cart;
+    }
     
     @GetMapping
-    public String showSalesPage(Model model) {
+    public String showSalesPage(Model model, HttpSession session) {
+        Map<Long, CartItem> cart = getCart(session);
         model.addAttribute("products", productService.getAllProducts());
         model.addAttribute("cart", cart.values());
         double total = cart.values().stream()
@@ -40,9 +51,11 @@ public class SaleController {
     }
     
     @PostMapping("/add-to-cart")
-    public String addToCart(@RequestParam Long productId, @RequestParam int quantity) {
+    public String addToCart(@RequestParam Long productId, @RequestParam int quantity, HttpSession session) {
         Product product = productService.getProductById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid product Id:" + productId));
+        
+        Map<Long, CartItem> cart = getCart(session);
         
         if (product.getQuantity() < quantity) {
             return "redirect:/sales?error=insufficient_stock";
@@ -50,8 +63,12 @@ public class SaleController {
         
         if (cart.containsKey(productId)) {
             CartItem item = cart.get(productId);
-            item.setQuantity(item.getQuantity() + quantity);
-            item.setSubtotal(item.getQuantity() * product.getPrice());
+            int newQuantity = item.getQuantity() + quantity;
+            if (product.getQuantity() < newQuantity) {
+                return "redirect:/sales?error=insufficient_stock";
+            }
+            item.setQuantity(newQuantity);
+            item.setSubtotal(newQuantity * product.getPrice());
         } else {
             CartItem item = new CartItem();
             item.setProductId(productId);
@@ -66,15 +83,28 @@ public class SaleController {
     }
     
     @GetMapping("/remove-from-cart/{productId}")
-    public String removeFromCart(@PathVariable Long productId) {
+    public String removeFromCart(@PathVariable Long productId, HttpSession session) {
+        Map<Long, CartItem> cart = getCart(session);
         cart.remove(productId);
         return "redirect:/sales";
     }
     
     @PostMapping("/checkout")
-    public String checkout() {
+    public String checkout(HttpSession session) {
+        Map<Long, CartItem> cart = getCart(session);
+        
         if (cart.isEmpty()) {
             return "redirect:/sales?error=empty_cart";
+        }
+        
+        // Verify stock availability before checkout
+        for (CartItem cartItem : cart.values()) {
+            Product product = productService.getProductById(cartItem.getProductId())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid product Id:" + cartItem.getProductId()));
+            
+            if (product.getQuantity() < cartItem.getQuantity()) {
+                return "redirect:/sales?error=insufficient_stock";
+            }
         }
         
         Sale sale = new Sale();
@@ -99,10 +129,13 @@ public class SaleController {
         sale.setSaleItems(saleItems);
         sale.setTotalAmount(totalAmount);
         
-        saleService.saveSale(sale);
-        cart.clear();
-        
-        return "redirect:/sales?success=checkout_complete";
+        try {
+            saleService.saveSale(sale);
+            cart.clear();
+            return "redirect:/sales?success=checkout_complete";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/sales?error=insufficient_stock";
+        }
     }
     
     // Inner class for cart items
