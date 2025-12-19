@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Mini Mart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shop"></i> Mini Mart
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/products">
+                            <i class="bi bi-box"></i> Products
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sales">
+                            <i class="bi bi-cart"></i> Sales
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/reports">
+                            <i class="bi bi-graph-up"></i> Reports
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="container mt-5">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4">
+                <i class="bi bi-shop text-primary"></i> Welcome to Mini Mart Management System
+            </h1>
+            <p class="lead">Manage your mini mart efficiently with our comprehensive system</p>
+            <hr class="my-4">
+            <p>Track products, process sales, and generate reports - all in one place!</p>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-box-seam display-1 text-primary"></i>
+                        <h5 class="card-title mt-3">Product Management</h5>
+                        <p class="card-text">Add, edit, and manage your product inventory with ease</p>
+                        <a href="/products" class="btn btn-primary">
+                            <i class="bi bi-box"></i> Manage Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-cart-check display-1 text-success"></i>
+                        <h5 class="card-title mt-3">Sales Processing</h5>
+                        <p class="card-text">Process sales transactions and manage your shopping cart</p>
+                        <a href="/sales" class="btn btn-success">
+                            <i class="bi bi-cart"></i> Process Sales
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-graph-up-arrow display-1 text-info"></i>
+                        <h5 class="card-title mt-3">Reports & Analytics</h5>
+                        <p class="card-text">View daily sales reports and inventory status</p>
+                        <a href="/reports" class="btn btn-info">
+                            <i class="bi bi-graph-up"></i> View Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-info-circle"></i> System Features
+                        </h5>
+                        <ul class="mb-0">
+                            <li>Real-time inventory tracking</li>
+                            <li>Automated stock reduction after sales</li>
+                            <li>Daily sales reporting</li>
+                            <li>Category-based product organization</li>
+                            <li>User-friendly interface with Bootstrap design</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
