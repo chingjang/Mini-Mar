@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Mini Mart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-shop"></i> Mini Mart
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/products">
+                            <i class="bi bi-box"></i> Products
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sales">
+                            <i class="bi bi-cart"></i> Sales
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/reports">
+                            <i class="bi bi-graph-up"></i> Reports
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2 class="mb-4"><i class="bi bi-graph-up-arrow"></i> Reports & Analytics</h2>
+
+        <!-- Date Selector -->
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <form method="get" action="/reports" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="date" class="form-label">Select Date</label>
+                        <input type="date" class="form-control" id="date" name="date" 
+                               th:value="${reportDate}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> View Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-1">Daily Sales Total</h6>
+                                <h3 class="mb-0 text-success" th:text="'$' + ${#numbers.formatDecimal(dailyTotal, 1, 2)}">$0.00</h3>
+                            </div>
+                            <div class="bg-success bg-opacity-10 p-3 rounded">
+                                <i class="bi bi-cash-stack display-4 text-success"></i>
+                            </div>
+                        </div>
+                        <small class="text-muted" th:text="'For ' + ${#temporals.format(reportDate, 'MMMM dd, yyyy')}"></small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm border-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-1">Total Transactions</h6>
+                                <h3 class="mb-0 text-info" th:text="${#lists.size(dailySales)}">0</h3>
+                            </div>
+                            <div class="bg-info bg-opacity-10 p-3 rounded">
+                                <i class="bi bi-receipt display-4 text-info"></i>
+                            </div>
+                        </div>
+                        <small class="text-muted" th:text="'For ' + ${#temporals.format(reportDate, 'MMMM dd, yyyy')}"></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Transactions -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-receipt-cutoff"></i> Daily Sales Transactions</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sale ID</th>
+                                <th>Date & Time</th>
+                                <th>Items</th>
+                                <th>Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="sale : ${dailySales}">
+                                <td th:text="${sale.id}">#1</td>
+                                <td th:text="${#temporals.format(sale.saleDate, 'MMM dd, yyyy HH:mm:ss')}">Date Time</td>
+                                <td>
+                                    <ul class="mb-0" style="padding-left: 20px;">
+                                        <li th:each="item : ${sale.saleItems}">
+                                            <span th:text="${item.product.name}">Product</span> 
+                                            (Qty: <span th:text="${item.quantity}">0</span>)
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td class="text-success fw-bold" th:text="'$' + ${#numbers.formatDecimal(sale.totalAmount, 1, 2)}">$0.00</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(dailySales)}">
+                                <td colspan="4" class="text-center text-muted">
+                                    <i class="bi bi-inbox"></i> No sales recorded for this date.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Status -->
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-boxes"></i> Current Inventory Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock Quantity</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="product : ${products}">
+                                <td th:text="${product.id}">1</td>
+                                <td th:text="${product.name}">Product Name</td>
+                                <td><span class="badge bg-secondary" th:text="${product.category}">Category</span></td>
+                                <td th:text="'$' + ${#numbers.formatDecimal(product.price, 1, 2)}">$0.00</td>
+                                <td th:text="${product.quantity}">0</td>
+                                <td>
+                                    <span th:if="${product.quantity > 10}" class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> In Stock
+                                    </span>
+                                    <span th:if="${product.quantity > 0 && product.quantity <= 10}" class="badge bg-warning">
+                                        <i class="bi bi-exclamation-triangle"></i> Low Stock
+                                    </span>
+                                    <span th:if="${product.quantity == 0}" class="badge bg-danger">
+                                        <i class="bi bi-x-circle"></i> Out of Stock
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(products)}">
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="bi bi-inbox"></i> No products in inventory.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
